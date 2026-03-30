@@ -74,7 +74,7 @@
 
 SELECT 
 
-&#x20;   DATE\_PART('day', order\_estimated\_delivery\_time - order\_delivered\_customer\_time) AS delay\_days
+DATE\_PART('day', order\_estimated\_delivery\_time - order\_delivered\_customer\_time) AS delay\_days
 
 FROM orders;
 
