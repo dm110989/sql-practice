@@ -385,6 +385,93 @@ FULL OUTER JOIN     -- все строки из обеих таблиц
 
 
 -- =========================================
+-- 🔗 UNION / INTERSECT / EXCEPT
+-- =========================================
+UNION               -- объединить результаты двух SELECT без дублей
+
+-- возвращает все уникальные строки из двух запросов
+
+-- пример:
+-- SELECT customer_id
+-- FROM customer_actions
+-- UNION
+-- SELECT customer_id
+-- FROM customers;
+
+-- результат:
+-- все уникальные customer_id из customer_actions и customers
+
+
+UNION ALL           -- объединить результаты двух SELECT с дублями
+
+-- в отличие от UNION, не убирает повторяющиеся строки
+
+-- пример:
+-- SELECT customer_id
+-- FROM customer_actions
+-- UNION ALL
+-- SELECT customer_id
+-- FROM customers;
+
+
+INTERSECT           -- пересечение результатов (только общие строки)
+
+-- возвращает только те строки, которые есть в обоих SELECT
+
+-- пример:
+-- SELECT customer_id
+-- FROM customer_actions
+-- INTERSECT
+-- SELECT customer_id
+-- FROM customers;
+
+-- результат:
+-- только те customer_id, которые есть и в customer_actions, и в customers
+
+
+EXCEPT              -- разница результатов
+
+-- возвращает строки из первого SELECT, которых нет во втором
+
+-- пример:
+-- SELECT customer_id
+-- FROM customer_actions
+-- EXCEPT
+-- SELECT customer_id
+-- FROM customers;
+
+-- результат:
+-- customer_id, которые есть в customer_actions, но отсутствуют в customers
+
+
+-- =========================================
+-- ⚠️ ВАЖНО ДЛЯ UNION / INTERSECT / EXCEPT
+-- =========================================
+-- количество столбцов в обоих SELECT должно совпадать
+-- порядок столбцов тоже должен совпадать
+-- типы данных должны быть совместимы
+
+-- правильно:
+-- SELECT customer_id FROM orders
+-- UNION
+-- SELECT customer_id FROM customers
+
+-- ошибка:
+-- SELECT customer_id FROM orders
+-- UNION
+-- SELECT customer_id, city FROM customers
+
+
+-- =========================================
+-- 💡 КОРОТКО ПРО РАЗНИЦУ
+-- =========================================
+-- UNION      → объединить без дублей
+-- UNION ALL  → объединить с дублями
+-- INTERSECT  → оставить только общие строки
+-- EXCEPT     → оставить строки только из первого запроса
+
+
+-- =========================================
 -- 🏷 ПСЕВДОНИМЫ
 -- =========================================
 AS                  -- переименовать столбец или таблицу
@@ -475,7 +562,9 @@ DISTINCT
 --   FROM orders
 --   GROUP BY customer_city
 -- )
--- SELECT *
+-- SELECT
+--   customer_city,
+--   cnt
 -- FROM city_stats;
 
 
@@ -576,20 +665,33 @@ SUM(x) OVER ()         -- сумма по окну без схлопывания
 
 
 -- 8. Использовать WITH
+-- WITH city_stats AS (
+--   SELECT
+--     customer_city,
+--     COUNT(*) AS cnt
+--   FROM orders
+--   GROUP BY customer_city
+-- )
 -- SELECT
 --   customer_city,
 --   cnt
--- FROM (
---   WITH city_stats AS (
---     SELECT
---       customer_city,
---       COUNT(*) AS cnt
---     FROM orders
---     GROUP BY customer_city
---   )
---   SELECT *
---   FROM city_stats
--- ) t;
+-- FROM city_stats;
+
+
+-- 9. Объединить результаты через UNION
+-- SELECT customer_id
+-- FROM customer_actions
+-- UNION
+-- SELECT customer_id
+-- FROM customers;
+
+
+-- 10. Найти общие значения через INTERSECT
+-- SELECT customer_id
+-- FROM customer_actions
+-- INTERSECT
+-- SELECT customer_id
+-- FROM customers;
 
 
 -- =========================================
