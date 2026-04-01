@@ -355,9 +355,9 @@ ORDER BY column DESC    -- по убыванию
 INNER JOIN          -- только совпадения
 -- пример:
 -- SELECT *
--- FROM customers c
--- INNER JOIN orders o
---   ON c.customer_id = o.customer_id
+-- FROM customers c                       -- Основная таблица
+-- INNER JOIN orders o                    -- Присоединяемая таблица
+--   ON c.customer_id = o.customer_id     -- Условие совпадения по которому объединяем
 
 LEFT JOIN           -- всё из левой таблицы + совпадения справа
 -- если совпадения нет, справа будет NULL
