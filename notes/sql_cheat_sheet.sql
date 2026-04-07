@@ -96,17 +96,17 @@ WHERE created_at >= '2024-01-01';
 -- несколько условий
 SELECT *
 FROM orders
-WHERE status = 'paid'
+WHERE order_status = 'paid'
   AND price > 1000;
 
 SELECT *
 FROM customers
-WHERE city = 'Москва'
-   OR city = 'Казань';
+WHERE customer_city = 'Москва'
+   OR customer_city = 'Казань';
 
 SELECT *
 FROM orders
-WHERE NOT status = 'canceled';
+WHERE order_status <> 'canceled';
 
 
 -- =========================================
@@ -116,14 +116,14 @@ WHERE NOT status = 'canceled';
 -- входит в список
 SELECT *
 FROM customers
-WHERE city IN ('Москва', 'Казань');
+WHERE customer_city IN ('Москва', 'Казань');
 
 -- диапазон
 SELECT *
 FROM orders
 WHERE price BETWEEN 100 AND 500;
 
--- поиск по шаблону с учетом регистра
+-- поиск по шаблону
 SELECT *
 FROM customers
 WHERE name LIKE 'A%';
@@ -152,11 +152,10 @@ SELECT *
 FROM customers
 WHERE customer_city IS NOT NULL;
 
--- если a = NULL, взять b
-COALESCE(a, b)
--- пример: COALESCE(city, 'неизвестно')
+-- если значение NULL, подставить другое
+COALESCE(customer_city, 'неизвестно')
 
--- если a = b, вернуть NULL
+-- если два значения равны, вернуть NULL
 NULLIF(a, b)
 -- пример: NULLIF(0, 0)
 
@@ -251,8 +250,8 @@ DATE_PART('hour', created_at)
 DATE_PART('minute', created_at)
 -- пример: 2024-05-10 12:30:00 → 30
 
+-- секунды (могут быть с дробной частью)
 DATE_PART('second', created_at)
--- пример: 2024-05-10 12:30:45 → 45
 
 -- день недели: 0 = воскресенье, 6 = суббота
 DATE_PART('dow', created_at)
@@ -326,7 +325,7 @@ FROM orders;
 -- =========================================
 
 COUNT(*)                -- количество строк
-COUNT(column)           -- количество НЕ NULL значений
+COUNT(column)           -- считает только НЕ NULL значения
 COUNT(DISTINCT column)  -- количество уникальных НЕ NULL значений
 SUM(x)                  -- сумма
 AVG(x)                  -- среднее
@@ -376,10 +375,10 @@ GROUP BY customer_city;
 -- сгруппировать по нескольким столбцам
 SELECT
   customer_city,
-  status,
+  order_status,
   COUNT(*) AS orders_cnt
 FROM orders
-GROUP BY customer_city, status;
+GROUP BY customer_city, order_status;
 
 
 -- =========================================
@@ -419,7 +418,7 @@ HAVING AVG(price) > 1000;
 
 
 -- =========================================
--- 19. JOIN
+-- 19. ВИДЫ JOIN
 -- =========================================
 
 -- INNER JOIN → только совпадения
@@ -461,7 +460,7 @@ FULL OUTER JOIN orders o
 
 
 -- =========================================
--- 20. JOIN
+-- 20. JOIN НА ПРАКТИКЕ
 -- =========================================
 
 -- FROM = основная таблица
@@ -478,12 +477,12 @@ FROM orders o
 JOIN customers c
   ON o.customer_id = c.customer_id;
 
--- если нужна информация из 3 таблиц
+-- если нужна информация из нескольких таблиц
 SELECT
   o.order_id,
   c.customer_name,
   p.product_brand,
-  oi.price
+  oi.price AS item_price
 FROM orders o
 JOIN customers c
   ON o.customer_id = c.customer_id
@@ -806,7 +805,7 @@ FROM customers;
 
 
 -- =========================================
--- WINDOW FUNCTIONS (ШПАРГАЛКА)
+-- 33. WINDOW FUNCTIONS
 -- =========================================
 
 -- Оконные функции НЕ схлопывают строки
@@ -858,23 +857,50 @@ DENSE_RANK() OVER (ORDER BY price DESC)
 NTILE(4) OVER (ORDER BY price)
 
 -- =========================================
--- 3. СМЕЩЕНИЕ
+-- 3. СМЕЩЕНИЕ И ЗНАЧЕНИЯ В ОКНЕ
 -- =========================================
 
 -- LAG — предыдущее значение
-LAG(price) OVER (ORDER BY date)
+LAG(price) OVER (ORDER BY created_at)
 
 -- LEAD — следующее значение
-LEAD(price) OVER (ORDER BY date)
+LEAD(price) OVER (ORDER BY created_at)
 
 -- FIRST_VALUE — первое значение в окне
-FIRST_VALUE(price) OVER (ORDER BY price)
+FIRST_VALUE(price) OVER (
+  PARTITION BY customer_id
+  ORDER BY price
+)
 
--- LAST_VALUE — последнее значение
+-- LAST_VALUE — последнее значение в окне
 LAST_VALUE(price) OVER (
+  PARTITION BY customer_id
   ORDER BY price
   ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
 )
+
+-- NTH_VALUE — n-ое значение в окне
+NTH_VALUE(price, 2) OVER (
+  PARTITION BY customer_id
+  ORDER BY price
+  ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+)
+
+-- пример: второе значение в группе
+SELECT
+  customer_id,
+  price,
+  NTH_VALUE(price, 2) OVER (
+    PARTITION BY customer_id
+    ORDER BY price
+    ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+  ) AS second_price
+FROM orders;
+
+-- важно:
+-- без ROWS BETWEEN результат у LAST_VALUE() и NTH_VALUE()
+-- часто будет "плавающий", потому что фрейм по умолчанию
+-- заканчивается на CURRENT ROW
 
 -- =========================================
 -- 4. СТАТИСТИКА
@@ -894,7 +920,7 @@ CUME_DIST() OVER (ORDER BY price)
 OVER (PARTITION BY customer_id)
 
 -- ORDER BY — задаёт порядок
-OVER (ORDER BY date)
+OVER (ORDER BY created_at)
 
 -- =========================================
 -- ROWS BETWEEN (ГРАНИЦЫ ПО СТРОКАМ)
@@ -910,6 +936,9 @@ ROWS BETWEEN 3 PRECEDING AND CURRENT ROW
 
 -- только текущая строка
 ROWS BETWEEN CURRENT ROW AND CURRENT ROW
+
+-- предыдущая + текущая + следующая строка
+ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING
 
 -- N строк ПОСЛЕ текущей
 ROWS BETWEEN CURRENT ROW AND 3 FOLLOWING
@@ -939,12 +968,27 @@ RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
 -- RANGE = по значениям
 
 -- =========================================
+-- ВАЖНО ПРО ФРЕЙМ ПО УМОЛЧАНИЮ
+-- =========================================
+
+-- если есть ORDER BY, но не указан ROWS / RANGE,
+-- то по умолчанию обычно используется:
+
+-- RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+
+-- поэтому LAST_VALUE() и NTH_VALUE() без явного ROWS BETWEEN
+-- часто работают не так, как ожидают
+
+-- RANGE объединяет строки с одинаковым значением ORDER BY
+-- поэтому результат может отличаться от ROWS
+
+-- =========================================
 -- БАЗОВЫЕ ПАТТЕРНЫ
 -- =========================================
 
 -- накопительная сумма
 SUM(price) OVER (
-  ORDER BY date
+  ORDER BY created_at
   ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
 )
 
@@ -955,7 +999,8 @@ ROW_NUMBER() OVER (
 )
 
 -- разница с предыдущим
-price - LAG(price) OVER (ORDER BY date)
+price - LAG(price) OVER (ORDER BY created_at)
+
 
 -- =========================================
 -- 34. МИНИ-ПРИМЕРЫ
@@ -1092,6 +1137,18 @@ SELECT
   ) AS rn
 FROM orders;
 
+-- 15. Предыдущее значение через LAG
+SELECT
+  customer_id,
+  order_id,
+  created_at,
+  price,
+  LAG(price) OVER (
+    PARTITION BY customer_id
+    ORDER BY created_at
+  ) AS prev_price
+FROM orders;
+
 
 -- =========================================
 -- 35. КОРОТКАЯ ПАМЯТКА ПО ПОДЗАПРОСАМ
@@ -1168,8 +1225,3 @@ FROM orders;
 -- если нужно посчитать что-то поверх каждой строки,
 -- но не потерять сами строки
 -- window functions
-
-
--- =========================================
--- КОНЕЦ ШПАРГАЛКИ
--- =========================================
