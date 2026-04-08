@@ -1091,6 +1091,24 @@ LEAD(price) OVER (
 -- price: 100, 120, 90
 -- LEAD:  120,90,NULL
 
+-- Посчитать, сколько пользователей зарегистрировалось в каждый день и добавить:
+-- LAG() - сколько регистраций было в предыдущий день
+-- LEAD() - сколько будет в следующий день
+WITH daily_registrations AS (
+  SELECT
+    created_at :: DATE AS reg_date,
+    COUNT(*) AS registrations
+  FROM customers
+  GROUP BY created_at :: date
+)
+SELECT
+  reg_date,
+  registrations,
+  LAG(registrations) OVER (ORDER BY reg_date) AS prev_day,
+  LEAD(registrations) OVER (ORDER BY reg_date) AS next_day,
+  LAG(registrations, 2) OVER (ORDER BY reg_date) AS two_prev_day
+FROM daily_registrations
+ORDER BY reg_date
 
 -- =========================================
 -- ФУНКЦИИ ЗНАЧЕНИЙ (Value functions)
