@@ -42,7 +42,7 @@ df["name"]          # один столбец
 df[["name", "age"]] # несколько столбцов
 
 df.loc[0]           # по названию индекса
-df.iloc[0]          # по позиции (как список)
+df.iloc[0]          # по позиции
 ```
 
 ---
@@ -72,13 +72,14 @@ min_age = 25
 df.query("age > @min_age")
 ```
 
-- `"age > @min_age"` — строка с условием  
-- `age` — название колонки  
-- `@min_age` — переменная из Python (берется из кода)
+- `"age > @min_age"` — строка с условием
+- `age` — название колонки
+- `@min_age` — переменная из Python
 
-👉 Без `@` не сработает, потому что query ищет переменные внутри строки
+Без `@` не сработает, потому что `query()` ищет переменные внутри строки.
 
 Аналог:
+
 ```python
 df[df["age"] > min_age]
 ```
@@ -136,11 +137,6 @@ df["age"] = df["age"].astype(float)
 ```
 
 ```python
-df["date"] = pd.to_datetime(df["date"])
-# строку → дата
-```
-
-```python
 df["num"] = pd.to_numeric(df["num"], errors="coerce")
 # ошибки → NaN
 ```
@@ -156,6 +152,7 @@ df["cat"] = df["name"].astype("category")
 
 ```python
 df["date"] = pd.to_datetime(df["date"])
+# строку → дата
 ```
 
 ```python
@@ -184,29 +181,154 @@ df.groupby("name")["salary"].agg(["sum", "mean"])
 
 ---
 
+## Агрегации (Aggregation)
+
+Агрегации — это операции, которые уменьшают данные (как GROUP BY в SQL).
+
+### Основные функции
+
+```python
+df["salary"].sum()    # сумма
+df["salary"].mean()   # среднее
+df["salary"].count()  # количество (без NaN)
+df["salary"].min()    # минимум
+df["salary"].max()    # максимум
+```
+
+---
+
+### Пример
+
+```python
+print(df["salary"].mean())
+```
+
+Результат:
+
+```
+150.0
+```
+
+---
+
+### groupby + агрегаты
+
+```python
+df.groupby("name")["salary"].sum()
+df.groupby("name")["salary"].mean()
+```
+
+Считаем по группам, как `GROUP BY` в SQL.
+
+---
+
+### Несколько агрегатов сразу
+
+```python
+df.groupby("name")["salary"].agg(["sum", "mean", "count"])
+```
+
+Результат:
+
+```
+       sum   mean  count
+name
+Иван   250  125.0      2
+Петр   200  200.0      1
+```
+
+---
+
+### count vs value_counts
+
+```python
+df["name"].count()
+# сколько НЕ пустых значений
+```
+
+```python
+df["name"].value_counts()
+# сколько раз встречается каждое значение
+```
+
+---
+
+### nunique()
+
+```python
+df["name"].nunique()
+# количество уникальных значений
+```
+
+---
+
 ### transform()
 
 ```python
 df["salary_mean"] = df.groupby("name")["salary"].transform("mean")
 ```
 
-👉 отличие:
-- `groupby().mean()` → уменьшает таблицу  
-- `transform()` → оставляет размер таблицы  
+- `agg()` → уменьшает таблицу
+- `transform()` → сохраняет размер таблицы
 
 ---
 
 ## Pivot и Melt
 
-```python
-df.pivot(index="name", columns="month", values="salary")
-# строки → столбцы
-```
+### pivot()
+
+Преобразует таблицу: значения → в столбцы
 
 ```python
-df.melt(id_vars="name", var_name="metric", value_name="value")
-# столбцы → строки
+df.pivot(index="name", columns="month", values="salary")
 ```
+
+- `index` — строки
+- `columns` — станет столбцами
+- `values` — значения
+
+Длинная таблица → широкая.
+
+---
+
+### Пример
+
+```python
+data = {
+    "name": ["Иван", "Иван", "Петр"],
+    "month": ["Jan", "Feb", "Jan"],
+    "salary": [100, 150, 200]
+}
+
+df = pd.DataFrame(data)
+
+print(df.pivot(index="name", columns="month", values="salary"))
+```
+
+Результат:
+
+```
+month   Feb   Jan
+name
+Иван    150   100
+Петр    NaN   200
+```
+
+---
+
+### melt()
+
+Обратная операция: столбцы → в строки
+
+```python
+df.melt(id_vars="name", var_name="month", value_name="salary")
+```
+
+- `id_vars` — что оставить
+- `var_name` — имя нового столбца
+- `value_name` — значения
+
+Широкая таблица → длинная.
 
 ---
 
@@ -229,11 +351,6 @@ pd.merge(df1, df2, on="id", how="left")
 ```python
 df["name"].unique()
 # уникальные значения
-```
-
-```python
-df["name"].value_counts()
-# сколько раз встречается каждое значение
 ```
 
 ```python
@@ -273,12 +390,12 @@ pd.set_option("display.max_columns", None)
 
 ## Что запомнить
 
-- df["col"] — выбор столбца  
-- df[условие] — фильтрация  
-- query() — фильтр как SQL  
-- value_counts() — распределение  
-- groupby() — агрегация  
-- merge() — объединение  
-- pivot / melt — изменение формы  
-- fillna / dropna — пропуски  
-- astype / to_datetime — типы  
+- `df["col"]` — выбор столбца
+- `df[условие]` — фильтрация
+- `query()` — фильтр как SQL
+- `value_counts()` — распределение
+- `groupby()` — агрегация
+- `merge()` — объединение
+- `pivot()` / `melt()` — изменение формы
+- `fillna()` / `dropna()` — пропуски
+- `astype()` / `to_datetime()` — типы
