@@ -25,39 +25,24 @@ df = pd.DataFrame(data)
 ## Просмотр данных
 
 ```python
-df.head()
-df.tail()
-df.shape
-df.columns
-df.info()
-df.describe()
+df.head()      # первые строки
+df.tail()      # последние строки
+df.shape       # (строки, столбцы)
+df.columns     # названия колонок
+df.info()      # типы и структура
+df.describe()  # статистика
 ```
 
 ---
 
 ## Выбор данных
 
-### Один столбец
-
 ```python
-df["name"]
-```
+df["name"]          # один столбец
+df[["name", "age"]] # несколько столбцов
 
----
-
-### Несколько столбцов
-
-```python
-df[["name", "age"]]
-```
-
----
-
-### По индексу
-
-```python
-df.loc[0]
-df.iloc[0]
+df.loc[0]           # по названию индекса
+df.iloc[0]          # по позиции (как список)
 ```
 
 ---
@@ -65,7 +50,7 @@ df.iloc[0]
 ## Фильтрация
 
 ```python
-df[df["age"] > 25]
+df[df["age"] > 25]  # строки, где age > 25
 ```
 
 ---
@@ -74,6 +59,8 @@ df[df["age"] > 25]
 
 ```python
 df[(df["age"] > 20) & (df["salary"] > 120)]
+# & = И, | = ИЛИ
+# каждое условие в скобках
 ```
 
 ---
@@ -85,13 +72,29 @@ min_age = 25
 df.query("age > @min_age")
 ```
 
+- `"age > @min_age"` — строка с условием  
+- `age` — название колонки  
+- `@min_age` — переменная из Python (берется из кода)
+
+👉 Без `@` не сработает, потому что query ищет переменные внутри строки
+
+Аналог:
+```python
+df[df["age"] > min_age]
+```
+
 ---
 
 ## Сортировка
 
 ```python
-df.sort_values("age")
-df.sort_values(["age", "salary"], ascending=[True, False])
+df.sort_values("age")  # по возрастанию
+
+df.sort_values(
+    ["age", "salary"],
+    ascending=[True, False]
+)
+# сначала age ↑, потом salary ↓
 ```
 
 ---
@@ -100,6 +103,7 @@ df.sort_values(["age", "salary"], ascending=[True, False])
 
 ```python
 df["bonus"] = df["salary"] * 0.1
+# создаем новый столбец на основе другого
 ```
 
 ---
@@ -107,11 +111,19 @@ df["bonus"] = df["salary"] * 0.1
 ## Работа с NaN
 
 ```python
-df.isna()
-df.dropna()
-df.fillna(0)
+df.isna()        # где пропуски (True/False)
+df.dropna()      # удалить строки с NaN
+df.fillna(0)     # заменить NaN на 0
+```
+
+```python
 df.fillna(df.mean())
+# заполнить средним по колонке
+```
+
+```python
 df.dropna(subset=["age"])
+# удалить только если age = NaN
 ```
 
 ---
@@ -120,9 +132,22 @@ df.dropna(subset=["age"])
 
 ```python
 df["age"] = df["age"].astype(float)
+# привести к float
+```
+
+```python
 df["date"] = pd.to_datetime(df["date"])
+# строку → дата
+```
+
+```python
 df["num"] = pd.to_numeric(df["num"], errors="coerce")
+# ошибки → NaN
+```
+
+```python
 df["cat"] = df["name"].astype("category")
+# экономит память
 ```
 
 ---
@@ -131,7 +156,9 @@ df["cat"] = df["name"].astype("category")
 
 ```python
 df["date"] = pd.to_datetime(df["date"])
+```
 
+```python
 df["year"] = df["date"].dt.year
 df["month"] = df["date"].dt.month
 df["weekday"] = df["date"].dt.day_name()
@@ -143,6 +170,7 @@ df["weekday"] = df["date"].dt.day_name()
 
 ```python
 df.groupby("name")["salary"].sum()
+# сумма зарплат по каждому имени
 ```
 
 ---
@@ -151,6 +179,7 @@ df.groupby("name")["salary"].sum()
 
 ```python
 df.groupby("name")["salary"].agg(["sum", "mean"])
+# сразу несколько функций
 ```
 
 ---
@@ -161,22 +190,22 @@ df.groupby("name")["salary"].agg(["sum", "mean"])
 df["salary_mean"] = df.groupby("name")["salary"].transform("mean")
 ```
 
+👉 отличие:
+- `groupby().mean()` → уменьшает таблицу  
+- `transform()` → оставляет размер таблицы  
+
 ---
 
 ## Pivot и Melt
 
-### pivot()
-
 ```python
 df.pivot(index="name", columns="month", values="salary")
+# строки → столбцы
 ```
-
----
-
-### melt()
 
 ```python
 df.melt(id_vars="name", var_name="metric", value_name="value")
+# столбцы → строки
 ```
 
 ---
@@ -185,17 +214,12 @@ df.melt(id_vars="name", var_name="metric", value_name="value")
 
 ```python
 pd.merge(df1, df2, on="id")
+# объединение по ключу
 ```
-
----
-
-### Типы join
 
 ```python
 pd.merge(df1, df2, on="id", how="left")
-pd.merge(df1, df2, on="id", how="right")
-pd.merge(df1, df2, on="id", how="outer")
-pd.merge(df1, df2, on="id", how="inner")
+# все из df1 + совпадения из df2
 ```
 
 ---
@@ -204,9 +228,22 @@ pd.merge(df1, df2, on="id", how="inner")
 
 ```python
 df["name"].unique()
+# уникальные значения
+```
+
+```python
 df["name"].value_counts()
+# сколько раз встречается каждое значение
+```
+
+```python
 df.reset_index(drop=True)
+# сбросить индекс
+```
+
+```python
 df.sort_index()
+# сортировка по индексу
 ```
 
 ---
@@ -220,6 +257,7 @@ df.columns = (
     .str.lower()
     .str.replace(" ", "_")
 )
+# делает snake_case
 ```
 
 ---
@@ -237,11 +275,10 @@ pd.set_option("display.max_columns", None)
 
 - df["col"] — выбор столбца  
 - df[условие] — фильтрация  
-- query() — удобная фильтрация  
-- value_counts() — частоты  
-- sort_values() — сортировка  
+- query() — фильтр как SQL  
+- value_counts() — распределение  
 - groupby() — агрегация  
 - merge() — объединение  
-- pivot() / melt() — преобразование  
-- fillna() / dropna() — пропуски  
-- astype() / to_datetime() — типы  
+- pivot / melt — изменение формы  
+- fillna / dropna — пропуски  
+- astype / to_datetime — типы  
