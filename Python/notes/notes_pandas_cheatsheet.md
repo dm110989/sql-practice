@@ -1,4 +1,4 @@
-# Pandas: шпаргалка с примерами
+# Pandas: расширенная шпаргалка
 
 ## Подключение
 
@@ -18,15 +18,6 @@ data = {
 }
 
 df = pd.DataFrame(data)
-print(df)
-```
-
-Результат:
-```
-   name  age  salary
-0  Иван   25     100
-1  Петр   30     200
-2  Анна   22     150
 ```
 
 ---
@@ -39,6 +30,7 @@ df.tail()
 df.shape
 df.columns
 df.info()
+df.describe()
 ```
 
 ---
@@ -48,14 +40,7 @@ df.info()
 ### Один столбец
 
 ```python
-print(df["name"])
-```
-
-Результат:
-```
-0    Иван
-1    Петр
-2    Анна
+df["name"]
 ```
 
 ---
@@ -63,7 +48,7 @@ print(df["name"])
 ### Несколько столбцов
 
 ```python
-print(df[["name", "age"]])
+df[["name", "age"]]
 ```
 
 ---
@@ -71,8 +56,8 @@ print(df[["name", "age"]])
 ### По индексу
 
 ```python
-print(df.loc[0])
-print(df.iloc[0])
+df.loc[0]
+df.iloc[0]
 ```
 
 ---
@@ -80,13 +65,7 @@ print(df.iloc[0])
 ## Фильтрация
 
 ```python
-print(df[df["age"] > 25])
-```
-
-Результат:
-```
-   name  age  salary
-1  Петр   30     200
+df[df["age"] > 25]
 ```
 
 ---
@@ -94,7 +73,16 @@ print(df[df["age"] > 25])
 ### Несколько условий
 
 ```python
-print(df[(df["age"] > 20) & (df["salary"] > 120)])
+df[(df["age"] > 20) & (df["salary"] > 120)]
+```
+
+---
+
+### query()
+
+```python
+min_age = 25
+df.query("age > @min_age")
 ```
 
 ---
@@ -102,7 +90,8 @@ print(df[(df["age"] > 20) & (df["salary"] > 120)])
 ## Сортировка
 
 ```python
-print(df.sort_values("age"))
+df.sort_values("age")
+df.sort_values(["age", "salary"], ascending=[True, False])
 ```
 
 ---
@@ -111,7 +100,6 @@ print(df.sort_values("age"))
 
 ```python
 df["bonus"] = df["salary"] * 0.1
-print(df)
 ```
 
 ---
@@ -119,11 +107,34 @@ print(df)
 ## Работа с NaN
 
 ```python
-df["age"] = [25, None, 22]
+df.isna()
+df.dropna()
+df.fillna(0)
+df.fillna(df.mean())
+df.dropna(subset=["age"])
+```
 
-print(df.isna())
-print(df.dropna())
-print(df.fillna(0))
+---
+
+## Преобразование типов
+
+```python
+df["age"] = df["age"].astype(float)
+df["date"] = pd.to_datetime(df["date"])
+df["num"] = pd.to_numeric(df["num"], errors="coerce")
+df["cat"] = df["name"].astype("category")
+```
+
+---
+
+## Работа с датами
+
+```python
+df["date"] = pd.to_datetime(df["date"])
+
+df["year"] = df["date"].dt.year
+df["month"] = df["date"].dt.month
+df["weekday"] = df["date"].dt.day_name()
 ```
 
 ---
@@ -131,7 +142,7 @@ print(df.fillna(0))
 ## Группировка (groupby)
 
 ```python
-print(df.groupby("name")["salary"].sum())
+df.groupby("name")["salary"].sum()
 ```
 
 ---
@@ -139,7 +150,33 @@ print(df.groupby("name")["salary"].sum())
 ### Несколько агрегатов
 
 ```python
-print(df.groupby("name")["salary"].agg(["sum", "mean"]))
+df.groupby("name")["salary"].agg(["sum", "mean"])
+```
+
+---
+
+### transform()
+
+```python
+df["salary_mean"] = df.groupby("name")["salary"].transform("mean")
+```
+
+---
+
+## Pivot и Melt
+
+### pivot()
+
+```python
+df.pivot(index="name", columns="month", values="salary")
+```
+
+---
+
+### melt()
+
+```python
+df.melt(id_vars="name", var_name="metric", value_name="value")
 ```
 
 ---
@@ -147,25 +184,18 @@ print(df.groupby("name")["salary"].agg(["sum", "mean"]))
 ## Объединение таблиц (merge)
 
 ```python
-df1 = pd.DataFrame({
-    "id": [1, 2],
-    "name": ["Иван", "Петр"]
-})
-
-df2 = pd.DataFrame({
-    "id": [1, 2],
-    "salary": [100, 200]
-})
-
-result = pd.merge(df1, df2, on="id")
-print(result)
+pd.merge(df1, df2, on="id")
 ```
 
-Результат:
-```
-   id  name  salary
-0   1  Иван     100
-1   2  Петр     200
+---
+
+### Типы join
+
+```python
+pd.merge(df1, df2, on="id", how="left")
+pd.merge(df1, df2, on="id", how="right")
+pd.merge(df1, df2, on="id", how="outer")
+pd.merge(df1, df2, on="id", how="inner")
 ```
 
 ---
@@ -175,8 +205,30 @@ print(result)
 ```python
 df["name"].unique()
 df["name"].value_counts()
-df["age"] = df["age"].astype(float)
-df.reset_index()
+df.reset_index(drop=True)
+df.sort_index()
+```
+
+---
+
+## Очистка колонок
+
+```python
+df.columns = (
+    df.columns
+    .str.strip()
+    .str.lower()
+    .str.replace(" ", "_")
+)
+```
+
+---
+
+## Настройки отображения
+
+```python
+pd.set_option("display.max_rows", 100)
+pd.set_option("display.max_columns", None)
 ```
 
 ---
@@ -185,7 +237,11 @@ df.reset_index()
 
 - df["col"] — выбор столбца  
 - df[условие] — фильтрация  
+- query() — удобная фильтрация  
+- value_counts() — частоты  
 - sort_values() — сортировка  
 - groupby() — агрегация  
 - merge() — объединение  
-- fillna() / dropna() — работа с NaN  
+- pivot() / melt() — преобразование  
+- fillna() / dropna() — пропуски  
+- astype() / to_datetime() — типы  
