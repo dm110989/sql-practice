@@ -20,6 +20,8 @@ data = {
 df = pd.DataFrame(data)
 ```
 
+`DataFrame` — это таблица: строки + столбцы.
+
 ---
 
 ## Просмотр данных
@@ -27,10 +29,10 @@ df = pd.DataFrame(data)
 ```python
 df.head()      # первые строки
 df.tail()      # последние строки
-df.shape       # (строки, столбцы)
+df.shape       # размер: (строки, столбцы)
 df.columns     # названия колонок
-df.info()      # типы и структура
-df.describe()  # статистика
+df.info()      # типы данных и пропуски
+df.describe()  # статистика по числовым колонкам
 ```
 
 ---
@@ -38,11 +40,13 @@ df.describe()  # статистика
 ## Выбор данных
 
 ```python
-df["name"]          # один столбец
-df[["name", "age"]] # несколько столбцов
+df["name"]           # один столбец
+df[["name", "age"]]  # несколько столбцов
+```
 
-df.loc[0]           # по названию индекса
-df.iloc[0]          # по позиции
+```python
+df.loc[0]   # строка по названию индекса
+df.iloc[0]  # строка по позиции
 ```
 
 ---
@@ -50,7 +54,8 @@ df.iloc[0]          # по позиции
 ## Фильтрация
 
 ```python
-df[df["age"] > 25]  # строки, где age > 25
+df[df["age"] > 25]
+# строки, где age больше 25
 ```
 
 ---
@@ -59,9 +64,13 @@ df[df["age"] > 25]  # строки, где age > 25
 
 ```python
 df[(df["age"] > 20) & (df["salary"] > 120)]
-# & = И, | = ИЛИ
-# каждое условие в скобках
 ```
+
+Что важно:
+
+- `&` — И
+- `|` — ИЛИ
+- каждое условие пишется в скобках
 
 ---
 
@@ -72,13 +81,13 @@ min_age = 25
 df.query("age > @min_age")
 ```
 
-- `"age > @min_age"` — строка с условием
+Что значит:
+
 - `age` — название колонки
 - `@min_age` — переменная из Python
+- `@` нужен, чтобы pandas понял: переменная находится вне строки
 
-Без `@` не сработает, потому что `query()` ищет переменные внутри строки.
-
-Аналог:
+Аналог без `query()`:
 
 ```python
 df[df["age"] > min_age]
@@ -89,13 +98,22 @@ df[df["age"] > min_age]
 ## Сортировка
 
 ```python
-df.sort_values("age")  # по возрастанию
+df.sort_values("age")
+# сортировка по возрастанию
+```
 
+```python
+df.sort_values("age", ascending=False)
+# сортировка по убыванию
+```
+
+```python
 df.sort_values(
     ["age", "salary"],
     ascending=[True, False]
 )
-# сначала age ↑, потом salary ↓
+# сначала age по возрастанию,
+# потом salary по убыванию
 ```
 
 ---
@@ -104,27 +122,91 @@ df.sort_values(
 
 ```python
 df["bonus"] = df["salary"] * 0.1
-# создаем новый столбец на основе другого
+```
+
+Создаем новый столбец `bonus` на основе `salary`.
+
+---
+
+## Переименование колонок
+
+### Переименовать один столбец
+
+```python
+df = df.rename(columns={"name": "user_name"})
+```
+
+---
+
+### Переименовать несколько столбцов
+
+```python
+df = df.rename(columns={
+    "name": "user_name",
+    "age": "user_age"
+})
+```
+
+---
+
+### Полностью заменить все названия
+
+```python
+df.columns = ["user_name", "user_age", "salary"]
+```
+
+Важно: количество новых названий должно совпадать с количеством колонок.
+
+---
+
+## Очистка названий колонок
+
+Часто в данных из Excel/CSV есть пробелы, большие буквы и неудобные названия.
+
+```python
+df.columns = (
+    df.columns
+    .str.strip()              # убрать пробелы по краям
+    .str.lower()              # привести к нижнему регистру
+    .str.replace(" ", "_")    # заменить пробелы на _
+)
+```
+
+Пример:
+
+```text
+" User Name " → "user_name"
 ```
 
 ---
 
 ## Работа с NaN
 
+`NaN` — это пропущенное значение.
+
 ```python
-df.isna()        # где пропуски (True/False)
-df.dropna()      # удалить строки с NaN
-df.fillna(0)     # заменить NaN на 0
+df.isna()
+# показать пропуски True/False
 ```
 
 ```python
-df.fillna(df.mean())
-# заполнить средним по колонке
+df.dropna()
+# удалить строки с пропусками
+```
+
+```python
+df.fillna(0)
+# заменить пропуски на 0
 ```
 
 ```python
 df.dropna(subset=["age"])
-# удалить только если age = NaN
+# удалить строки, где age = NaN
+```
+
+```python
+df["age"] = df["age"].fillna(df["age"].mean())
+# заполнить пропуски средним age
 ```
 
 ---
@@ -133,17 +215,18 @@ df.dropna(subset=["age"])
 
 ```python
 df["age"] = df["age"].astype(float)
-# привести к float
+# привести age к float
 ```
 
 ```python
 df["num"] = pd.to_numeric(df["num"], errors="coerce")
-# ошибки → NaN
+# преобразовать в число
+# ошибки превратить в NaN
 ```
 
 ```python
 df["cat"] = df["name"].astype("category")
-# экономит память
+# категориальный тип
 ```
 
 ---
@@ -152,7 +235,7 @@ df["cat"] = df["name"].astype("category")
 
 ```python
 df["date"] = pd.to_datetime(df["date"])
-# строку → дата
+# строку превратить в дату
 ```
 
 ```python
@@ -163,62 +246,75 @@ df["weekday"] = df["date"].dt.day_name()
 
 ---
 
-## Группировка (groupby)
+## Агрегации
 
-```python
-df.groupby("name")["salary"].sum()
-# сумма зарплат по каждому имени
-```
-
----
-
-### Несколько агрегатов
-
-```python
-df.groupby("name")["salary"].agg(["sum", "mean"])
-# сразу несколько функций
-```
-
----
-
-## Агрегации (Aggregation)
-
-Агрегации — это операции, которые уменьшают данные (как GROUP BY в SQL).
-
-### Основные функции
+Агрегации уменьшают данные: считают сумму, среднее, минимум, максимум и т.д.
 
 ```python
 df["salary"].sum()    # сумма
 df["salary"].mean()   # среднее
-df["salary"].count()  # количество (без NaN)
+df["salary"].count()  # количество без NaN
 df["salary"].min()    # минимум
 df["salary"].max()    # максимум
 ```
 
 ---
 
-### Пример
+### round()
 
 ```python
-print(df["salary"].mean())
+df["salary"].mean().round(2)
+```
+
+Округление до 2 знаков после запятой.
+
+Пример:
+
+```python
+round(3.14159, 2)
 ```
 
 Результат:
 
-```
-150.0
+```text
+3.14
 ```
 
 ---
 
-### groupby + агрегаты
+### value_counts()
+
+```python
+df["name"].value_counts()
+```
+
+Показывает, сколько раз встречается каждое значение.
+
+---
+
+### nunique()
+
+```python
+df["name"].nunique()
+```
+
+Количество уникальных значений.
+
+---
+
+## Группировка groupby()
+
+`groupby()` — как `GROUP BY` в SQL.
 
 ```python
 df.groupby("name")["salary"].sum()
-df.groupby("name")["salary"].mean()
+# сумма salary по каждому имени
 ```
 
-Считаем по группам, как `GROUP BY` в SQL.
+```python
+df.groupby("name")["salary"].mean()
+# средняя salary по каждому имени
+```
 
 ---
 
@@ -230,34 +326,11 @@ df.groupby("name")["salary"].agg(["sum", "mean", "count"])
 
 Результат:
 
-```
+```text
        sum   mean  count
 name
 Иван   250  125.0      2
 Петр   200  200.0      1
-```
-
----
-
-### count vs value_counts
-
-```python
-df["name"].count()
-# сколько НЕ пустых значений
-```
-
-```python
-df["name"].value_counts()
-# сколько раз встречается каждое значение
-```
-
----
-
-### nunique()
-
-```python
-df["name"].nunique()
-# количество уникальных значений
 ```
 
 ---
@@ -268,8 +341,10 @@ df["name"].nunique()
 df["salary_mean"] = df.groupby("name")["salary"].transform("mean")
 ```
 
-- `agg()` → уменьшает таблицу
-- `transform()` → сохраняет размер таблицы
+Разница:
+
+- `agg()` уменьшает таблицу
+- `transform()` сохраняет размер таблицы
 
 ---
 
@@ -277,21 +352,21 @@ df["salary_mean"] = df.groupby("name")["salary"].transform("mean")
 
 ### pivot()
 
-Преобразует таблицу: значения → в столбцы
+`pivot()` делает таблицу шире: значения одного столбца становятся новыми колонками.
 
 ```python
 df.pivot(index="name", columns="month", values="salary")
 ```
 
-- `index` — строки
-- `columns` — станет столбцами
-- `values` — значения
+Что значит:
 
-Длинная таблица → широкая.
+- `index` — что будет строками
+- `columns` — что станет новыми колонками
+- `values` — какие значения будут внутри таблицы
 
 ---
 
-### Пример
+### Пример pivot()
 
 ```python
 data = {
@@ -307,7 +382,7 @@ print(df.pivot(index="name", columns="month", values="salary"))
 
 Результат:
 
-```
+```text
 month   Feb   Jan
 name
 Иван    150   100
@@ -318,30 +393,42 @@ name
 
 ### melt()
 
-Обратная операция: столбцы → в строки
+`melt()` делает обратное: широкую таблицу превращает в длинную.
 
 ```python
 df.melt(id_vars="name", var_name="month", value_name="salary")
 ```
 
-- `id_vars` — что оставить
-- `var_name` — имя нового столбца
-- `value_name` — значения
+Что значит:
 
-Широкая таблица → длинная.
+- `id_vars` — что оставить как есть
+- `var_name` — название нового столбца с бывшими колонками
+- `value_name` — название нового столбца со значениями
 
 ---
 
-## Объединение таблиц (merge)
+## Объединение таблиц merge()
+
+`merge()` — как `JOIN` в SQL.
 
 ```python
 pd.merge(df1, df2, on="id")
-# объединение по ключу
+# соединить по колонке id
 ```
 
 ```python
 pd.merge(df1, df2, on="id", how="left")
-# все из df1 + совпадения из df2
+# left join: все строки из df1 + совпадения из df2
+```
+
+```python
+pd.merge(df1, df2, on="id", how="inner")
+# inner join: только совпадения
+```
+
+```python
+pd.merge(df1, df2, on="id", how="outer")
+# outer join: все строки из обеих таблиц
 ```
 
 ---
@@ -365,20 +452,6 @@ df.sort_index()
 
 ---
 
-## Очистка колонок
-
-```python
-df.columns = (
-    df.columns
-    .str.strip()
-    .str.lower()
-    .str.replace(" ", "_")
-)
-# делает snake_case
-```
-
----
-
 ## Настройки отображения
 
 ```python
@@ -390,12 +463,15 @@ pd.set_option("display.max_columns", None)
 
 ## Что запомнить
 
-- `df["col"]` — выбор столбца
+- `df["col"]` — выбрать столбец
 - `df[условие]` — фильтрация
-- `query()` — фильтр как SQL
-- `value_counts()` — распределение
-- `groupby()` — агрегация
-- `merge()` — объединение
-- `pivot()` / `melt()` — изменение формы
-- `fillna()` / `dropna()` — пропуски
-- `astype()` / `to_datetime()` — типы
+- `query()` — удобный фильтр
+- `rename()` — переименование колонок
+- `columns.str` — массовая очистка названий
+- `fillna()` / `dropna()` — работа с пропусками
+- `astype()` / `to_datetime()` — преобразование типов
+- `sum()` / `mean()` / `count()` — агрегации
+- `value_counts()` — частоты значений
+- `groupby()` — группировка
+- `merge()` — объединение таблиц
+- `pivot()` / `melt()` — изменение формы таблицы
