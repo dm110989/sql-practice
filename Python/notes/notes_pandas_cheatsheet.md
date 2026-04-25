@@ -291,16 +291,64 @@ df["cat"] = df["name"].astype("category")
 
 ## Работа с датами
 
+### pd.to_datetime()
+
+Преобразует строку в дату
+
 ```python
 df["date"] = pd.to_datetime(df["date"])
-# строку превратить в дату
 ```
+
+---
+
+### Пример
+
+```python
+df["date"] = ["2024-01-01", "2024-02-01"]
+
+df["date"] = pd.to_datetime(df["date"])
+```
+
+👉 теперь это datetime, а не строка
+
+---
+
+### Ошибки в данных
+
+```python
+df["date"] = pd.to_datetime(df["date"], errors="coerce")
+```
+
+👉 если дата невалидная → станет NaN
+
+---
+
+### Формат даты
+
+```python
+pd.to_datetime(df["date"], format="%Y-%m-%d")
+```
+
+👉 используем, если формат известен
+
+---
+
+## Работа с датой
 
 ```python
 df["year"] = df["date"].dt.year
 df["month"] = df["date"].dt.month
+df["day"] = df["date"].dt.day
 df["weekday"] = df["date"].dt.day_name()
 ```
+
+---
+
+## Что запомнить
+
+- `to_datetime()` — превращает строку в дату  
+- `.dt` — доступ к частям даты  
+- `errors="coerce"` — защита от ошибок  
 
 ---
 
