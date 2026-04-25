@@ -359,6 +359,7 @@ df["weekday"] = df["date"].dt.day_name()
 ```python
 df["salary"].sum()    # сумма
 df["salary"].mean()   # среднее
+df["salary"].median()   # медиана 👉 значение посередине (устойчиво к выбросам)
 df["salary"].count()  # количество без NaN
 df["salary"].min()    # минимум
 df["salary"].max()    # максимум
