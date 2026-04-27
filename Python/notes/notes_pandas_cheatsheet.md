@@ -357,15 +357,38 @@ df["weekday"] = df["date"].dt.day_name()
 Агрегации уменьшают данные: считают сумму, среднее, минимум, максимум и т.д.
 
 ```python
-df["salary"].sum()    # сумма
-df["salary"].mean()   # среднее
-df["salary"].median()   # медиана 👉 значение посередине (устойчиво к выбросам)
-df["salary"].count()  # количество без NaN
-df["salary"].min()    # минимум
-df["salary"].max()    # максимум
+df["salary"].sum()     # сумма
+df["salary"].mean()    # среднее
+df["salary"].median()  # медиана (устойчива к выбросам)
+df["salary"].count()   # количество без NaN
+df["salary"].size      # общее количество (включая NaN)
+df["salary"].min()     # минимум
+df["salary"].max()     # максимум
 ```
 
 ---
+
+### size vs count
+
+```python
+df["salary"].count()
+```
+👉 считает только НЕ пустые значения
+
+```python
+df["salary"].size
+```
+👉 считает ВСЕ значения (включая NaN)
+
+---
+
+### size() в groupby
+
+```python
+df.groupby("name").size()
+```
+
+👉 считает количество строк в группе (включая NaN)
 
 ### round()
 
