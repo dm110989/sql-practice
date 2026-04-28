@@ -196,7 +196,7 @@ plt.subplot(122)
 - subplot → выбрать место для графика  
 - index начинается с 1  
 
-### 📈 plt.plot() — линия
+### **📈 plt.plot() — линия**
 
 ```python
 plt.plot(x, y, color="blue", linestyle="--", linewidth=2, label="Линия")
@@ -212,7 +212,7 @@ plt.plot(x, y, color="blue", linestyle="--", linewidth=2, label="Линия")
 
 ---
 
-### 📍 plt.scatter() — точки
+### **📍 plt.scatter() — точки**
 
 ```python
 plt.scatter(x, y, color="red", s=50, alpha=0.7)
@@ -227,7 +227,7 @@ plt.scatter(x, y, color="red", s=50, alpha=0.7)
 
 ---
 
-### 📊 plt.bar() — столбцы
+### **📊 plt.bar() — столбцы**
 
 ```python
 plt.bar(x, y, color="green", width=0.5)
@@ -242,7 +242,7 @@ plt.bar(x, y, color="green", width=0.5)
 
 ---
 
-### 📊 plt.barh() — горизонтальные столбцы
+### 📊 **plt.barh() — горизонтальные столбцы**
 
 ```python
 plt.barh(x, y, color="green")
@@ -257,7 +257,7 @@ plt.barh(x, y, color="green")
 
 ---
 
-### 📉 plt.hist() — гистограмма
+### **📉 plt.hist() — гистограмма**
 
 ```python
 plt.hist(data, bins=10, color="blue", alpha=0.7)
