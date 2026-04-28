@@ -272,12 +272,28 @@ plt.hist(data, bins=10, color="blue", alpha=0.7)
 
 ---
 
-## Общие параметры (для всех графиков)
+## Общие параметры графиков
 
 ```python
-plt.title("Заголовок")
-plt.xlabel("X")
-plt.ylabel("Y")
-plt.legend()
-plt.grid()
+plt.title("Заголовок")  — заголовок
+plt.xlabel("X")         — подписи осей
+plt.ylabel("Y")         — подписи осей
+plt.legend()            — легенда (нужен label в plot)
+plt.grid()              — сетка
+plt.tight_layout()      — авто-отступы (чтобы ничего не налезало) 
+```  
+
+---
+
+### Полезно
+
+```python
+plt.suptitle("Общий заголовок")
+plt.xlim(0, 10) 
+plt.ylim(0, 100)
+plt.xticks(rotation=45)
 ```
+
+- suptitle — общий заголовок  
+- xlim / ylim — границы  
+- xticks — поворот подписей  
