@@ -648,7 +648,8 @@ df.pivot(index="name", columns="month", values="salary")
 
 # 🔷 PIVOT_TABLE — pivot с агрегацией
 
-`pivot_table()` похож на `pivot()`, но умеет объединять несколько значений.
+pivot_table() похож на pivot(), но умеет агрегировать дубли
+pivot() требует уникальные значения, pivot_table() — нет
 
 Например, если у Ивана за январь две записи:
 
@@ -668,7 +669,7 @@ df.pivot_table(
     aggfunc="mean"
 )
 ```
-
+👉 если есть дубли, pivot() упадет, а pivot_table() справится
 ---
 
 ## 📌 Что означает `aggfunc`
@@ -685,6 +686,71 @@ aggfunc="max"    # максимум
 aggfunc="min"    # минимум
 ```
 
+---
+
+
+## 📌 margins=True
+
+Добавляет итоговые значения (в зависимости от aggfunc)
+
+```python
+df.pivot_table(
+    index="name",
+    columns="month",
+    values="salary",
+    aggfunc="sum",
+    margins=True
+)
+```
+
+👉 добавляет строку и столбец с итогами (`All`)
+
+
+## 📌 fill_value
+
+```python
+df.pivot_table(
+    index="name",
+    columns="month",
+    values="salary",
+    aggfunc="sum",
+    fill_value=0
+)
+```
+
+👉 заменяет NaN на 0
+
+---
+
+
+## 📌 Параметры pivot_table
+
+- index — строки  
+- columns — столбцы  
+- values — значения  
+- aggfunc — функция агрегации  
+- margins — итоги  
+- margins_name — название итогов  
+- fill_value — заменить NaN  
+- dropna — убрать пустые  
+- sort — сортировка  
+
+
+## 📌 margins_name
+
+```python
+pd.pivot_table(
+    df,
+    index="name",
+    columns="month",
+    values="salary",
+    aggfunc="sum",
+    margins=True,
+    margins_name="Total"
+)
+```
+
+👉 вместо `All` будет `Total`
 ---
 
 ## 📌 Пример pivot_table()
