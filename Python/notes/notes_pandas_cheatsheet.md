@@ -1075,29 +1075,73 @@ melt()        = длиннее
 
 ---
 
-## Объединение таблиц merge()
+## Объединение таблиц
 
-`merge()` — как `JOIN` в SQL.
+---
+
+### concat (склеивание)
+
+```python
+pd.concat([df1, df2], axis=0)
+```
+
+- axis=0 — сверху  
+- axis=1 — сбоку  
+
+👉 просто объединяет таблицы без логики
+
+---
+
+### merge (как JOIN в SQL)
 
 ```python
 pd.merge(df1, df2, on="id")
-# соединить по колонке id
 ```
+
+👉 соединить по колонке `id`
+
+---
+
+### Типы join
 
 ```python
 pd.merge(df1, df2, on="id", how="left")
-# left join: все строки из df1 + совпадения из df2
 ```
+👉 left join — все строки из df1 + совпадения из df2  
+
+```python
+pd.merge(df1, df2, on="id", how="right")
+```
+👉 right join — все строки из df2 + совпадения из df1  
 
 ```python
 pd.merge(df1, df2, on="id", how="inner")
-# inner join: только совпадения
 ```
+👉 inner join — только совпадения  
 
 ```python
 pd.merge(df1, df2, on="id", how="outer")
-# outer join: все строки из обеих таблиц
 ```
+👉 outer join — все строки из обеих таблиц  
+
+---
+
+### Разные названия колонок
+
+```python
+pd.merge(df1, df2, left_on="id", right_on="user_id")
+```
+
+👉 если названия колонок отличаются
+
+---
+
+## Что запомнить
+
+- concat — просто склеить  
+- merge — соединить по ключу  
+- how — тип join  
+- left_on / right_on — если названия разные  
 
 ---
 
