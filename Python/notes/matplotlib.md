@@ -293,14 +293,8 @@ plt.xlim(0, 10)
 plt.ylim(0, 100)
 plt.xticks(rotation=45)
 📐 plt.figure() — размер графика
+plt.figure(figsize=(10, 6)) - figsize — размер (ширина, высота),измеряется в дюймах 
 
-```python
-plt.figure(figsize=(10, 6))
-```
-
-- figsize — размер (ширина, высота)  
-- измеряется в дюймах  
-```
 - suptitle — общий заголовок  
 - xlim / ylim — границы  
 - xticks — поворот подписей  
