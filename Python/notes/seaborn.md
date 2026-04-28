@@ -21,72 +21,58 @@ df = sns.load_dataset("penguins")
 
 ---
 
-## Гистограмма (распределение)
+## Основные типы графиков
 
 ```python
-sns.displot(data=df, x="flipper_length_mm")
+sns.displot()        # распределение (гистограмма)
+sns.scatterplot()    # зависимость
+sns.boxplot()        # разброс
+sns.countplot()      # категории (количество)
+sns.pairplot()       # все связи
 ```
-
-
-::contentReference[oaicite:0]{index=0}
-
-
-👉 показывает распределение значений
 
 ---
 
-## С группировкой (цвет)
+### **📉 sns.displot() — распределение**
 
 ```python
-sns.displot(data=df, x="flipper_length_mm", hue="species")
+sns.displot(data=df, x="flipper_length_mm", bins=20)
 ```
 
+Основные параметры:
 
-::contentReference[oaicite:1]{index=1}
+- x — данные  
+- bins — количество столбиков  
+- hue — разбивка по категории  
 
-
-👉 сравнение групп
+👉 показывает распределение значений  
+👉 fig-level функция (создает отдельную фигуру)
 
 ---
 
-## Scatter (зависимость)
-
-```python
-sns.scatterplot(
-    data=df,
-    x="flipper_length_mm",
-    y="bill_length_mm"
-)
-```
-
-
-::contentReference[oaicite:2]{index=2}
-
-
-👉 показывает зависимость
-
----
-
-## Scatter с цветом
+### **📍 sns.scatterplot() — зависимость**
 
 ```python
 sns.scatterplot(
     data=df,
     x="flipper_length_mm",
     y="bill_length_mm",
-    hue="species"
+    hue="species",
+    s=50
 )
 ```
 
+Основные параметры:
 
-::contentReference[oaicite:3]{index=3}
+- x, y — данные  
+- hue — цвет по категории  
+- s — размер точек  
 
-
-👉 разные группы разными цветами
+👉 показывает зависимость между переменными  
 
 ---
 
-## Boxplot (ящик с усами)
+### **📊 sns.boxplot() — разброс**
 
 ```python
 sns.boxplot(
@@ -96,28 +82,46 @@ sns.boxplot(
 )
 ```
 
+Основные параметры:
 
-::contentReference[oaicite:4]{index=4}
-
+- x — категория  
+- y — значения  
 
 👉 показывает:
 - медиану  
 - разброс  
+- квартиль (25% / 75%)  
 - выбросы  
 
 ---
 
-## Pairplot (все зависимости)
+### **📊 sns.countplot() — количество по категориям**
+
+```python
+sns.countplot(data=df, x="species")
+```
+
+Основные параметры:
+
+- x — категория  
+- hue — разбивка по второй категории  
+- order — порядок категорий  
+
+👉 считает количество значений  
+👉 аналог value_counts() в виде графика  
+👉 не требует агрегации  
+
+---
+
+### **📊 sns.pairplot() — все зависимости**
 
 ```python
 sns.pairplot(df, hue="species")
 ```
 
-
-::contentReference[oaicite:5]{index=5}
-
-
-👉 все связи между переменными
+👉 показывает:
+- все зависимости между переменными  
+- распределения по диагонали  
 
 ---
 
@@ -131,19 +135,28 @@ sns.displot(
 )
 ```
 
+- col — отдельный график для каждой категории  
 
-::contentReference[oaicite:6]{index=6}
+---
 
+## Общие параметры (matplotlib)
 
-👉 отдельный график для каждой категории
+```python
+plt.title("Заголовок")
+plt.xlabel("X")
+plt.ylabel("Y")
+plt.grid()
+plt.tight_layout()
+```
 
 ---
 
 ## Что запомнить
 
-- displot — распределение  
-- scatterplot — зависимость  
-- boxplot — разброс  
-- pairplot — всё сразу  
-- hue — цвет по категории  
-- col — разбивка на графики  
+- displot → распределение  
+- scatterplot → зависимость  
+- boxplot → разброс  
+- countplot → категории  
+- pairplot → всё сразу  
+- hue → цвет по категории  
+- col → разбивка на графики  
