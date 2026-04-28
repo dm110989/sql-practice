@@ -128,3 +128,79 @@ plt.hist()      # гистограмма
 - plt.legend() — легенда  
 - plt.grid() — сетка  
 - plt.subplots() — несколько графиков  
+
+
+## Параметры графиков
+
+---
+
+### 📈 plt.plot() — линия
+
+```python
+plt.plot(x, y, color="blue", linestyle="--", linewidth=2, label="Линия")
+```
+
+Основные параметры:
+
+- x, y — данные  
+- color — цвет (`"red"`, `"blue"`, `"green"`)  
+- linestyle — стиль линии (`"-"`, `"--"`, `":"`)  
+- linewidth — толщина линии  
+- label — название (для легенды)  
+
+---
+
+### 📍 plt.scatter() — точки
+
+```python
+plt.scatter(x, y, color="red", s=50, alpha=0.7)
+```
+
+Основные параметры:
+
+- x, y — данные  
+- color — цвет  
+- s — размер точек  
+- alpha — прозрачность (0–1)  
+
+---
+
+### 📊 plt.bar() — столбцы
+
+```python
+plt.bar(x, y, color="green", width=0.5)
+```
+
+Основные параметры:
+
+- x — категории  
+- y — значения  
+- color — цвет  
+- width — ширина столбцов  
+
+---
+
+### 📉 plt.hist() — гистограмма
+
+```python
+plt.hist(data, bins=10, color="blue", alpha=0.7)
+```
+
+Основные параметры:
+
+- data — данные  
+- bins — количество столбиков  
+- color — цвет  
+- alpha — прозрачность  
+
+---
+
+## Общие параметры (для всех графиков)
+
+```python
+plt.title("Заголовок")
+plt.xlabel("X")
+plt.ylabel("Y")
+plt.legend()
+plt.grid()
+```
