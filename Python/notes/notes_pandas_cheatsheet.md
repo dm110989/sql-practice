@@ -493,6 +493,22 @@ name
 
 ---
 
+## 📌 Новый синтаксис agg()
+
+```python
+df.groupby("name").agg(
+    total_salary=("salary", "sum"),
+    avg_salary=("salary", "mean"),
+    count=("salary", "count")
+)
+
+       total_salary  avg_salary  count
+name
+Иван            250       125.0      2
+Петр            200       200.0      1
+
+---
+
 ### transform()
 
 ```python
