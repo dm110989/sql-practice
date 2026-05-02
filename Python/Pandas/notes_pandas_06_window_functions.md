@@ -6,15 +6,42 @@
 
 📊 Параметры rolling()
 
-- window — размер окна
-- min_periods — минимум наблюдений для расчёта
-- center — центрировать окно (вокруг текущего значения)
+- window — размер окна                                         
+ 👉 сколько наблюдений берём 
+ df['ma_3'] = df['value'].rolling(window=3).mean()
+
+- min_periods — минимум наблюдений для расчёта                  
+👉 позволяет избежать NaN 
+df['ma'] = df['value'].rolling(3, min_periods=1).mean()
+
+- center — центрировать окно (вокруг текущего значения)         
+df['ma_center'] = df['value'].rolling(3, center=True).mean()
+
 - win_type — тип весов окна (например gaussian)
+👉 значения имеют разный вес
+df['gauss'] = df['value'].rolling(5, win_type='gaussian').mean(std=1)
+
 - on — колонка с датой (если не индекс)
+👉 если дата не индекс                         
+df['ma'] = df.rolling(3, on='date')['value'].mean()
+
 - axis — направление (0 — по строкам, 1 — по столбцам)
+👉 0 — по строкам, 1 — по столбцам          
+df_rolling = df.rolling(3, axis=1).mean()
+
 - closed — какие границы окна включать (для временных окон)
-- step — шаг окна (пропуск значений)
-- method — способ вычисления (для numba)
+👉 какие точки включать (left, right, both, neither)     
+df = df.set_index('date')
+df['ma'] = df['value'].rolling('3D', closed='right').mean()
+
+- step — шаг окна (пропуск значений)      
+👉 считает не для каждой строки
+df['ma'] = df['value'].rolling(3, step=2).mean()
+
+- method — способ вычисления (для numba)        
+👉 ускоряет вычисления (для больших данных)
+df['ma'] = df['value'].rolling(3).mean(engine='numba')
+
 
 👉 считаем метрики по последним N значениям
 👉 window может быть числом (3) или временем ('7D')
